@@ -1,10 +1,11 @@
 # termux-dotfiles
 
 ![Screenshot](https://raw.githubusercontent.com/T4P4N/termux-dotfiles/master/screenshot.png)
+- colorscheme: base16 atlierlakeside dark
+- font: ubuntu
+- All Aliases & Functions are in .aliasrc file
 
-### All Aliases & Functions are in .aliasrc file
-
-## drkbld zsh theme notes:
+### drkbld zsh theme notes:
 - Requires codename_or_root script in your ~/.scripts directory
 - Or otherwise it will break the prompt.
 
