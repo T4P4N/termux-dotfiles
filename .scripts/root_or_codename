@@ -1,0 +1,9 @@
+#!/data/data/com.termux/files/usr/bin/sh
+# A simple script to output codename of device or root (if user is root)
+codename=$(getprop ro.product.device)
+if [ $(id -u) -eq 0 ]
+then
+  echo $(id -un)
+else
+  echo $codename
+fi

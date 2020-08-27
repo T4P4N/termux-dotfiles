@@ -1,0 +1,4 @@
+#!/data/data/com.termux/files/usr/bin/sh
+# This script connects system/bin/acpi to termux usr bin dir.
+unset LD_LIBRARY_PATH LD_PRELOAD
+PATH=$PATH:/system/bin exec /system/bin/acpi "$@"

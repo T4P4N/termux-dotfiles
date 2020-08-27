@@ -1,0 +1,187 @@
+#export PROMPT_DIRTRIM=2
+#Two More Copies of Current PS1.
+# export PS1='\[\033[0;38;5;1m\]root@localhost\[\033[0;38;5;7m\]:\[\033[0;38;5;4m\]\w\[\033[0;38;5;7m\]#\[\033[0m\] '
+# export PS1='
+#\[\033[0;38;5;1m\]root@localhost\[\033[0;38;5;7m\]:\[\033[0;38;5;4m\]\w\[\033[0;38;5;7m\]#\[\033[0m\] '
+# export PS1='\[\033[0;38;5;1m\]root@localhost\[\033[0;38;5;7m\]:\[\033[0;38;5;4m\]\w\[\033[0;38;5;7m\]#\[\033[0m\] '
+# export PS1='> '
+export EDITOR=micro
+export STARDICT_DATA_DIR=~/.stardict/
+# Start of aliases
+alias sdcv='sdcv -c'
+alias a='startarch'
+alias d='du -hs'
+alias e='exit'
+alias egrep='egrep --color=always'
+alias weather='curl wttr.in/bankner-india'
+alias f='fgrep --color=always'
+alias grep='grep --color=always'
+alias j='jobs'
+alias l='ls -rlah'
+alias lr='ls -alR'
+alias ls='ls --color=always'
+alias p='pwd'
+alias q='exit'
+alias ..="cd .."
+alias cls="clear"
+alias gcl="git clone"
+alias nano="nano -m"
+alias cpy="termux-clipboard-set"
+alias pst="termux-clipboard-get"
+alias ftp-server="busybox tcpsvd -vE 0.0.0.0 2121 busybox ftpd -w "
+alias open="termux-open"
+alias fde="less /sdcard/fde.txt"
+alias http-server="busybox httpd -p 0.0.0.0:4444"
+## alias bti="acpi -bt | grep --color=never '.* 1:.'"
+## Youtube dl specific ##
+alias ytmp3="youtube-dl -x --audio-format mp3 -o '%(title)s.%(ext)s' "
+######safety######
+alias rm="rm -I" #
+alias cp="cp -i" #
+alias mv="mv -i" #
+alias rf="rm -r" #
+##################
+# End of aliases
+
+#-------- Configurations {{{
+#------------------------------------------------------
+cfg-pacman() { nano /etc/pacman.conf ;} # arch specific
+cfg-aliasrc() { $EDITOR ~/.aliasrc ;}
+cfg-bashrc() { $EDITOR ~/.bashrc ;}
+cfg-emacs() { $EDITOR ~/.emacs ;}
+cfg-muttrc() { $EDITOR ~/.muttrc ;}
+cfg-nanorc() { $EDITOR ~/.nanorc;}
+cfg-ncmpcpp() { $EDITOR ~/.ncmpcpp/config ;}
+cfg-newsboat() { $EDITOR ~/.newsboat/config ;}
+cfg-newsboat-queue() { $EDITOR ~/.newsboat/queue ;}
+cfg-newsboat-urls() { $EDITOR ~/.newsboat/urls ;}
+cfg-nvim() { $EDITOR ~/.config/nvim/init.vim ;}
+cfg-profile() { $EDITOR ~/.profile ;}
+cfg-pulseaudio() { $EDITOR $PREFIX/etc/pulse/default.pa ;}
+cfg-zshrc() { $EDITOR ~/.zshrc ;}
+cfg-mpd() { $EDITOR $PREFIX/etc/mpd.conf ;}
+cfg-motd() { $EDITOR $PREFIX/etc/motd ;}
+cfg-tinyproxy() { $EDITOR $PREFIX/etc/tinyproxy/tinyproxy.conf ;}
+cfg-mpv() { $EDITOR $PREFIX/etc/mpv/mpv.conf ;}
+# }}}
+#-------- Configurations Reload {{{
+#------------------------------------------------------
+rld-bashrc() { source ~/.bashrc ;}
+rld-zshrc() { source ~/.zshrc ;}
+rld-tmux() { tmux source ~/.tmux.conf ;}
+# }}}
+
+#-------- Fasd (Jump and Open Files Quickly) {{{
+#------------------------------------------------------
+# DEMO: http://www.youtube.com/watch?v=ur81Y-mV5Us
+# LINK: https://github.com/clvv/fasd
+# DESC: jump to path or open recent files quickly from cli
+
+if which fasd >/dev/null; then
+  eval "$(fasd --init auto)"	# get fasd working, initialization code
+
+  # different fasd listing
+  # alias a='fasd -a'               # any
+  # alias s='fasd -si'              # show / search / select
+  # alias d='fasd -d'               # directory
+  # alias f='fasd -f'               # file
+  # alias sd='fasd -sid'            # interactive directory selection
+  # alias sf='fasd -sif'            # interactive file selection
+  # alias z='fasd_cd -d'            # cd, same functionality as j in autojump
+  # alias zz='fasd_cd -d -i'        # cd with interactive selection
+
+  # open with external programs
+  alias m="f -e $PLAYER"		# open with video player
+  alias o="a -e $OPENER"		# open any file
+  alias v="f -e $EDITOR"		# open with text editor
+fi
+#}}}
+
+#-------- Empty Template {{{
+#------------------------------------------------------
+# DEMO: https://www.youtube.com/watch?v=jhv-2pNWfr4
+# DESC: switch audio stream to different output (HDMI, Headphone, Speakers ...etc)
+# REFF: http://askubuntu.com/a/18210
+# LINK: http://quvi.sourceforge.net/
+
+# }}}
+
+
+### fzf Examples ###
+
+# fd - cd to selected directory
+fd() {
+    local dir
+    dir=$(find ${1:-.} -path '*/\.*' -prune \
+            -o -type d -print 2> /dev/null | fzf +m) &&
+    cd "$dir"
+}
+
+# fe [FUZZY PATTERN] - Open the selected file with the default editor
+#   - Bypass fuzzy finder if there's only one match (--select-1)
+#   - Exit if there's no match (--exit-0)
+fe() {
+  local files
+  IFS=$'\n' files=($(fzf-tmux --query="$1" --multi --select-1 --exit-0))
+  [[ -n "$files" ]] && ${EDITOR:-vim} "${files[@]}"
+}
+
+# Modified version where you can press
+#   - CTRL-O to open with `open` command,
+#   - CTRL-E or Enter key to open with the $EDITOR
+fo() {
+  local out file key
+  IFS=$'\n' out=($(fzf-tmux --query="$1" --exit-0 --expect=ctrl-o,ctrl-e))
+  key=$(head -1 <<< "$out")
+  file=$(head -2 <<< "$out" | tail -1)
+  if [ -n "$file" ]; then
+    [ "$key" = ctrl-o ] && open "$file" || ${EDITOR:-vim} "$file"
+  fi
+}
+
+
+## Open file in GUI
+fopen() {
+  local files
+  IFS=$'\n' files=($(fzf-tmux --query="$1" --multi --select-1 --exit-0))
+  [[ -n "$files" ]] && termux-open "${files[@]}"
+}
+
+fcheat() {
+  local files
+  IFS=$'\n' files=($(cd $HOME/cheatsheets && fzf-tmux --query="$1" --multi --select-1 --exit-0))
+  [[ -n "$files" ]] && cat $HOME/cheatsheets/"${files[@]}"
+}
+
+femoji() {
+	export EMOJI_FILE=~/.local/emoji_wo_uni
+	cat $EMOJI_FILE | fzf --multi | cut -d " " -f1 | tr -d -t '\n' | cpy
+}
+
+start-aria-webui() {
+	# Set the path to web ui
+	export ARIA_WEBUI_DIR=~/AriaNg-DailyBuild-master
+	# starting busybox httpd server
+	busybox httpd -p 0.0.0.0:4444 -h $ARIA_WEBUI_DIR
+	# open link in browser
+	termux-open-url "http://127.0.0.1:4444"
+	# starting aria rpc
+	aria2c --enable-rpc --rpc-allow-origin-all=true
+}
+
+stop-aria-webui() {
+	# Kill both aria2c & web server
+	pkill httpd
+	pkill aria2c
+	echo "killed httpd & aria2c"
+}
+
+wlan_ip() {
+	ip -f inet addr show wlan0 | grep -Po 'inet \K[\d.]+'
+}
+
+### Cursors:
+## Change Cursor to bar
+## echo -e '\e[6 q'
+## Change Cursor to underline
+## echo -e '\e[4 q'

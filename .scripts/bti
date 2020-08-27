@@ -1,0 +1,38 @@
+#!/data/data/com.termux/files/usr/bin/sh
+set -e -u
+
+show_help() {
+    echo 'Usage: bti [arguments]'
+    echo ''
+    echo 'Battery temperature info. Arguments:'
+    echo ''
+    echo '  -a all battery & temperature info'
+    echo '  -b battery percentage'
+    echo '  -t temperature in celsius'
+    exit 1
+}
+
+battery_percentage() {
+	bp=`acpi -b | grep '.* 1:.*' | cut -d " " -f3`
+	echo "battery left: $bp"
+}
+
+temp() {
+	tp=`acpi -t | grep '.* 1:.*' | cut -d " " -f3`
+	echo "temperature: $tp"C
+}
+
+if [ $# = 0 ]; then
+    show_help
+fi
+
+CMD="$1"
+shift 1
+
+case "$CMD" in
+	-b*) battery_percentage;;
+	-t*) temp;;
+	-a*) battery_percentage; temp;;
+	-h*) show_help;;
+    *) echo "Unknown command: '$CMD' (run 'bti help' for usage information)"; exit 1;;
+esac
